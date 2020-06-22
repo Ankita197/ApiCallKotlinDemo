@@ -1,4 +1,4 @@
-package com.example.seconddemokotlin.repository
+package com.example.seconddemokotlin.models
 
 import com.google.gson.annotations.SerializedName
 
@@ -10,13 +10,14 @@ data class CreateResponse(
    @SerializedName("message")
     val message: String,
    @SerializedName("data")
-   val data :UserData){
+   val data : UserData
+){
 
    data class UserData (
-      @SerializedName("users")
+       @SerializedName("users")
        val userList:ArrayList<User>,
 
-      @SerializedName("has_more")
+       @SerializedName("has_more")
        val has_more:Boolean
 )
    data  class User (

@@ -1,56 +1,48 @@
 package com.example.seconddemokotlin
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.example.seconddemokotlin.repository.ApiClass
-import com.example.seconddemokotlin.repository.CreateResponse
-import com.example.seconddemokotlin.repository.GetData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import com.example.seconddemokotlin.models.CreateResponse
+import com.example.seconddemokotlin.adapter.ItemTextAdapter
 import kotlinx.android.synthetic.main.activity_main.*
-import retrofit2.Call
-import retrofit2.Response
-import javax.security.auth.callback.Callback
+import retrofit2.Callback as Callback
 
 class MainActivity : AppCompatActivity() {
 
-  private val userList = arrayListOf<CreateResponse.User>()
+  private var userList = arrayListOf<CreateResponse.User>()
+    lateinit var viewModel:AppViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         makeApiCall()
-
-
     }
     fun setAdapter(){
-        val adapter = ItemTextAdapter(userList,this@MainActivity)
+        val adapter = ItemTextAdapter(
+            userList,
+            this@MainActivity
+        )
 
         //now adding the adapter to recyclerview
         rvItem.adapter = adapter
     }
     fun makeApiCall(){
-        val request = ApiClass.buildService(GetData::class.java)
-        val call = request.getData()
-           call.enqueue(object :  retrofit2.Callback<CreateResponse> {
-                override fun onFailure(call: Call<CreateResponse>, t: Throwable) {
 
-                }
-
-                override fun onResponse(
-                    call: Call<CreateResponse>,
-                    response: Response<CreateResponse>
-                ) {
-                    Log.d("___@___",response.toString())
-                    val res: CreateResponse? =response.body()
-                    if (res != null) {
-                        userList.addAll(res.data.userList)
-                        setAdapter()
-                    }
-                }
-
+           viewModel=ViewModelProvider(this).get(AppViewModel::class.java)
+            viewModel.user.observe(this, Observer {
+                user->println("Deebug: $user")
+                userList=user.data.userList
+                setAdapter()
             })
 
 
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.cancelJobs()
     }
 }
 
